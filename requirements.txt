@@ -1,0 +1,11 @@
+User CRUD
+
+GET /user
+GET /user/:id
+POST /user
+PATCH /user
+DELETE /user/:id
+
+Access:
+    -   If isAdmin: create, read, update, DELETE if in same organization.
+    -   If not admin: read

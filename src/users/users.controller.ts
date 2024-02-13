@@ -9,7 +9,7 @@ import { ForbiddenError } from '@casl/ability';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService, private abilityFactory: AbilityFactory) { }
+  constructor(private readonly usersService: UsersService, private abilityFactory: AbilityFactory) {}
 
   // @Post()
   // create(@Body() createUserDto: CreateUserDto) {
@@ -23,14 +23,16 @@ export class UsersController {
   //   return this.usersService.create(createUserDto);
   // }
 
+  // Can be done in both methods but the below one is more cleaner and concise.
+
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
-    const user = { id: 1, isAdmin: false };
+    const user = { id: 1, isAdmin: true, orgId: 12 };
 
     const ability = this.abilityFactory.defineAbility(user);
 
     try {
-      ForbiddenError.from(ability).setMessage('ony admin').throwUnlessCan(Action.Create, user)
+      ForbiddenError.from(ability).setMessage('only admin').throwUnlessCan(Action.Create, user)
 
       return this.usersService.create(createUserDto);
 
@@ -51,7 +53,20 @@ export class UsersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    const user = { id: 1, isAdmin: true, orgId: 12 };
+    const userToUpdate = this.usersService.findOne(15);
+    const ability = this.abilityFactory.defineAbility(user);
+
+    console.log('userToUpdate', userToUpdate)
+
+    try {
+      ForbiddenError.from(ability).setMessage('only admin').throwUnlessCan(Action.Update, userToUpdate)
+
+      return this.usersService.update(+id, updateUserDto);
+    } catch (error) {
+      if (error instanceof ForbiddenError) throw new ForbiddenException(error.message);
+    }
+
   }
 
   @Delete(':id')

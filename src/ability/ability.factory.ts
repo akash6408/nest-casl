@@ -22,6 +22,7 @@ export class AbilityFactory {
 
         if(user.isAdmin) {
             can(Action.Manage, 'all');
+            cannot(Action.Manage, User, { orgId: { $ne: user.orgId } })
         } else {
             can(Action.Read, 'all');
         }
