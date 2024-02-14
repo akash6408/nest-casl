@@ -11,7 +11,7 @@ export enum Action {
     Delete = 'delete',
   }
 
-type Subjects = InferSubjects<typeof User> | 'all';
+export type Subjects = InferSubjects<typeof User> | 'all';
 
 export type AppAbility = PureAbility<[Action, Subjects]>;
 
@@ -21,8 +21,12 @@ export class AbilityFactory {
         const {can, cannot, build} = new AbilityBuilder(PureAbility as AbilityClass<AppAbility>);
 
         if(user.isAdmin) {
-            can(Action.Manage, 'all');
-            cannot(Action.Manage, User, { orgId: { $ne: user.orgId } })
+            can(Action.Read, 'all');
+            can(Action.Create, 'all');
+
+            // The below condition is not working & we need to debug it as it is an important check for matching an admin's organization ID to the user's organization ID so that the admin of a different organization cannot manage the user of any different organization.
+
+            // can(Action.Manage, User, { orgId: user.orgId } );
         } else {
             can(Action.Read, 'all');
         }
